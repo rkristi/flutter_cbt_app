@@ -1,12 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cbt_app/core/extensions/build_context_ext.dart';
+import 'package:flutter_cbt_app/data/models/responses/materi_reponse_model.dart';
 import '../../../core/constants/colors.dart';
 import '../models/materi_model.dart';
 import '../pages/materi_detail_page.dart';
 
 
 class MateriCard extends StatelessWidget {
-  final MateriModel data;
+  final Materi data;
   const MateriCard({super.key, required this.data});
 
   @override
@@ -40,7 +42,7 @@ class MateriCard extends StatelessWidget {
               children: [
                 Flexible(
                   child: Text(
-                    data.name,
+                    data.title,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -50,8 +52,12 @@ class MateriCard extends StatelessWidget {
                 const SizedBox(width: 16.0),
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-                  child: Image.asset(
-                    data.image,
+                  child: CachedNetworkImage(
+                    imageUrl: data.image,
+                    placeholder: (context, url) => 
+                      const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => 
+                      const Icon(Icons.error),
                     width: 100.0,
                     height: 100.0,
                     fit: BoxFit.cover,
@@ -60,25 +66,9 @@ class MateriCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  data.timeAgo,
-                  style: const TextStyle(
-                    color: AppColors.darkGrey,
-                    fontSize: 12,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.more_horiz),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20.0),
+            
             Text(
-              data.description,
+              data.content,
               style: const TextStyle(
                 fontSize: 14,
               ),

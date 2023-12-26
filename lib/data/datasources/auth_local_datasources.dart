@@ -20,4 +20,6 @@ class AuthLocalDatasource {
     return AuthResponseModel.fromJson(authData!);
     
   }
+
+  getUserData() {}
 }

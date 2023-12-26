@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cbt_app/core/extensions/build_context_ext.dart';
+import 'package:flutter_cbt_app/data/models/responses/auth_response_model.dart';
 import '../../../core/components/custom_scaffold.dart';
+import '../../../data/datasources/auth_local_datasources.dart';
+import '../../auth/bloc/logout/logout_bloc.dart';
 import '../../auth/pages/login_page.dart';
 import '../widgets/profile_menu.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
@@ -23,28 +32,38 @@ class ProfilePage extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
-          const SizedBox(width: 16.0),
+          const SizedBox(width: 16.0), //
           SizedBox(
             width: context.deviceWidth - 160.0,
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Halo, Saiful Bahri',
+                const Text(
+                  'Halo,',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Text(
-                  '@codewithbahri',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                FutureBuilder<AuthResponseModel>(
+                  future: AuthLocalDatasource().getAuthData(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                          return Text(
+                            snapshot.data!.user.name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        } else {
+                          return const SizedBox();
+                        }
+                  },
+                  
                 ),
               ],
             ),
@@ -90,11 +109,15 @@ class ProfilePage extends StatelessWidget {
           ProfileMenu(
             label: 'Logout',
             onPressed: () {
-              context.pushAndRemoveUntil(const LoginPage(), (route) => false);
+              context.read<LogoutBloc>().add(const LogoutEvent.logout());
+              AuthLocalDatasource().removeAuthData();
+              context.pushReplacement(const LoginPage());
             },
           ),
         ],
       ),
     );
   }
+
+  AuthLocalDatasource newMethod() => AuthLocalDatasource();
 }
